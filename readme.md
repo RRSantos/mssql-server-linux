@@ -1,31 +1,49 @@
-# luizcarlosfaria/mssql-server-linux
+# rrsantos/mssql-server-linux
 
-## Same **microsoft/mssql-server-linux** docker image parameterizable like official **MySQL** and **Postgres** docker images
+## Same **microsoft/mssql-server-linux** docker image with **[sqlpackage](https://docs.microsoft.com/pt-br/sql/tools/sqlpackage/sqlpackage?view=sql-server-ver15)** utility and parameterizable like official **MySQL** and **Postgres** docker images
 
 ```
 version: "3.7"
 
 services:
-    sql:
-        image: luizcarlosfaria/mssql-server-linux:2019-latest
-        environment: {
-            "ACCEPT_EULA" : "Y",
-            "SA_PASSWORD" : "8k3W2C2BVzAW9p",
-            "MSSQL_DATABASE" : "db01",
-            "MSSQL_DATABASE_COLLATE" : "SQL_Latin1_General_CP1_CI_AI",
-            "MSSQL_USER" : "db01_dbowner_username",
-            "MSSQL_PASSWORD" : "db01_dbowner_password",
-        }
-        ports: 
-            - 1433:1433
-        volumes: 
-            - "./scripts/:/docker-entrypoint-initdb.d/"
+  sql:
+    container_name: mssql-tests
+    image: mssql-server-linux:2019-latest
+    build:
+      context: ..\.
+    environment:      {
+      "ACCEPT_EULA": "Y",
+      "SA_PASSWORD": "P2ssw0rd",
+      "MSSQL_DATABASE": "TestDB",
+      "MSSQL_DATABASE_COLLATE": "SQL_Latin1_General_CP1_CI_AI",
+      "MSSQL_USER": "myUserSQL",
+      "MSSQL_PASSWORD": "abc123",
+      "MSSQL_ATTACH_DATABASE_NAME":"MyAttachDB",
+      "MSSQL_ATTACH_DATABASE_PATH":"/temp/sql/attachDB"
+    }
+    ports:
+      - 1433:1433
+    volumes:
+      - "./sql-scripts/:/docker-entrypoint-initdb.d/"
+      - "./mouting-point/://temp/sql/"      
+      - sql_data:/var/opt/mssql/data
+      - sql_log:/var/opt/mssql/log
+      - sql_files:/var/opt/mssql/file_tables
+
+volumes:
+    sql_data:
+    sql_log:
+    sql_files:
 ```
 
 *Dockerfile* | https://github.com/docker-gallery/mssql-server-linux
 
-*PT-BR Project Home* | https://gago.io/blog/projetos/mssql-server-linux/
+## sqlpackage
+**sqlpackage** is a command-line utility that automates the several database development tasks. 
 
+**sqlpackage** is located at ``/sqlpackage/sqlpackage`` on this image.
+
+For useful example of using **sqlpackage** utility see [this file](tests/mouting-point/scripts/test-sqlpackage.sh). 
 
 ## Environment Variables
 
